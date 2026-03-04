@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Avi ❤️</title>
+    <style>
+        :root {
+            --primary-red: #a10f2b;
+            --soft-pink: #f9e6ec;
+            --love-pink: #f3c6d3;
+            --white: #ffffff;
+            --glass-white: rgba(255, 255, 255, 0.6);
+        }
+
+        body {
+            margin: 0; font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, var(--soft-pink) 0%, var(--love-pink) 100%);
+            color: var(--primary-red); text-align: center; overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .page { 
+            display: none; padding: 40px 20px; min-height: 100vh; box-sizing: border-box; 
+            position: absolute; width: 100%; top: 0; left: 0;
+        }
+
+        /* Transitions */
+        .slide-in { animation: slideIn 0.8s forwards ease-out; }
+        .zoom-in { animation: zoomIn 0.8s forwards; }
+        .fade-up { animation: fadeUp 1s forwards; }
+
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes fadeUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .page-subtitle { font-size: 0.9rem; font-style: italic; color: var(--primary-red); opacity: 0.8; margin-bottom: 20px; display: block; }
+
+        .glass-card {
+            background: var(--glass-white); backdrop-filter: blur(8px);
+            border-radius: 25px; padding: 25px; margin: 20px auto;
+            border: 1px solid var(--white); box-shadow: 0 10px 25px rgba(161, 15, 43, 0.1);
+        }
+
+        button {
+            background: var(--primary-red); color: var(--white); border: none; padding: 15px 30px;
+            border-radius: 50px; margin: 10px; font-family: 'Georgia', serif; font-size: 16px;
+            box-shadow: 0 5px 15px rgba(161, 15, 43, 0.3); cursor: pointer; transition: 0.3s;
+        }
+
+        /* Long Press Circle */
+        .hug-container { margin: 40px auto; position: relative; width: 150px; height: 150px; cursor: pointer; }
+        #hug-circle-bar { transform: rotate(-90deg); transform-origin: center; }
+
+        /* Map Game Styles */
+        .map-container {
+            position: relative; width: 100%; max-width: 350px; height: 120px;
+            background: rgba(255,255,255,0.3); border-radius: 50px;
+            margin: 30px auto; border: 2px dashed var(--primary-red);
+            display: flex; align-items: center; padding: 0 20px; box-sizing: border-box;
+        }
+        .city-label { font-size: 12px; font-weight: bold; position: absolute; bottom: -25px; }
+        #car-icon { position: absolute; left: 10%; font-size: 24px; transition: left 0.3s ease; z-index: 2; }
+
+        /* IMPROVED SMOOTH WHEEL */
+        .wheel-container { position: relative; width: 320px; height: 320px; margin: 40px auto; }
+        #wheel-svg { 
+            width: 100%; height: 100%; 
+            transition: transform 5s cubic-bezier(0.2, 0, 0, 1); /* Smoother curve */
+            filter: drop-shadow(0 8px 20px rgba(161, 15, 43, 0.2));
+        }
+        .pointer { 
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%); 
+            width: 0; height: 0; 
+            border-left: 15px solid transparent; border-right: 15px solid transparent; 
+            border-top: 25px solid var(--primary-red); z-index: 10; 
+        }
+        .slice-text { font-size: 10px; font-weight: bold; fill: var(--primary-red); letter-spacing: 0.5px; }
+        
+        canvas#fw, canvas#hearts-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
+    </style>
+</head>
+<body>
+
+    <audio id="song" loop src="YOUR_MP3_LINK_HERE"></audio>
+
+    <div id="page0" class="page" style="display:block;">
+        <h2>A Warm Virtual Hug...</h2>
+        <span class="page-subtitle">“I’m proud of you.”</span>
+        <p>Press and hold the heart to charge your hug.</p>
+        <div class="hug-container" id="hugZone">
+            <svg width="150" height="150" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(161,15,43,0.1)" stroke-width="8" />
+                <circle id="hug-circle-bar" cx="60" cy="60" r="50" fill="none" stroke="#a10f2b" stroke-width="8" stroke-dasharray="314" stroke-dashoffset="314" />
+                <text x="50%" y="58%" text-anchor="middle" font-size="45" style="pointer-events:none;">❤️</text>
+            </svg>
+        </div>
+        <button id="start-btn" style="display:none;" onclick="startExperience()">Start Journey ✨</button>
+    </div>
+
+    <div id="page1" class="page">
+        <h2>Bridge the Distance</h2>
+        <span class="page-subtitle">“I admire the way you think.”</span>
+        <p id="dist-text">Distance: <b>148 km</b></p>
+        <div class="map-container">
+            <div class="city-label" style="left: 10%;">Mumbai 🏙️</div>
+            <div id="car-icon">🚗</div>
+            <div class="city-label" style="right: 10%;">Pune 🏠</div>
+        </div>
+        <button id="drive-btn" onclick="drive()">Drive to Me 🛣️</button>
+        <button id="map-next" style="display:none;" onclick="goTo('page2', 'slide-in')">Arrived! See You ❤️</button>
+    </div>
+
+    <div id="page2" class="page">
+        <h2>Only if you remember…</h2>
+        <span class="page-subtitle">“You are becoming something powerful.”</span>
+        <input id="password" type="text" style="padding:15px; border-radius:25px; border:1px solid var(--primary-red); width:80%;" placeholder="">
+        <br><button onclick="checkPassword()">Unlock Our World</button>
+    </div>
+
+    <div id="page3" class="page">
+        <h2>A quick test... 🤔</h2>
+        <span class="page-subtitle">“I see your effort.”</span>
+        <p>What do you think is my most favorite?</p>
+        <button onclick="quiz(false)">Your bundle of kisses 💋</button>
+        <button onclick="quiz(true)">Your voice 📞</button>
+        <button onclick="quiz(false)">Your good morning text ☀️</button>
+        <p id="quiz-msg" style="font-weight:bold; margin-top:15px;"></p>
+        <div id="song-note" style="display:none;" class="glass-card">
+            <p>I’ve loved this song playing in the background since the day you sang it to me. It’s been "us" ever since.</p>
+            <button onclick="goTo('page4', 'zoom-in')">Continue ❤️</button>
+        </div>
+    </div>
+
+    <div id="page4" class="page">
+        <h3>Reasons I’m Thankful You Were Born...</h3>
+        <span class="page-subtitle">“You don’t even realise how far you’ve come.”</span>
+        <div class="glass-card"><p id="reason-text" style="font-size: 1.2rem; font-weight: bold;">Click to see...</p></div>
+        <button id="reason-btn" onclick="nextReason()">Next Reason ✨</button>
+    </div>
+
+    <div id="page5" class="page">
+        <h2>The Gift Wheel 🎡</h2>
+        <span class="page-subtitle">“I’m proud of you.”</span>
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <svg id="wheel-svg" viewBox="0 0 200 200">
+                <g id="wheel-group"></g>
+            </svg>
+            <div onclick="spinWheel()" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:60px; height:60px; background:var(--primary-red); border-radius:50%; color:var(--white); display:flex; align-items:center; justify-content:center; cursor:pointer; font-weight:bold; z-index:11; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">SPIN</div>
+        </div>
+        <p id="wheel-res" style="font-weight:bold; height: 50px; margin-top: 20px;"></p>
+        <button id="wheel-next" style="display:none;" onclick="goTo('page6', 'slide-in')">Continue 🌍</button>
+    </div>
+
+    <div id="page6" class="page">
+        <h3>🌍 If I Could Gift You the World...</h3>
+        <span class="page-subtitle">“I admire the way you think.”</span>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button onclick="gift('🌟 Success', 'I see you at the top. Your hard work has finally paid off.')">🌟 Success</button>
+            <button onclick="gift('🏡 Peace', 'A life where your mind is at rest and your heart is full.')">🏡 Peace</button>
+            <button onclick="gift('💫 Dreams', 'Every ambition you hold becoming your reality.')">💫 Dreams</button>
+            <button onclick="gift('❤️ Love', 'The deep, steady love you deserve every single day.')">❤️ Love</button>
+        </div>
+        <div id="gift-msg" class="glass-card" style="display:none; margin-top:20px;"></div>
+        <button onclick="goTo('page7', 'fade-up')">Next ❤️</button>
+    </div>
+
+    <div id="page7" class="page">
+        <h2>Open When Letters 💌</h2>
+        <span class="page-subtitle">“You are becoming something powerful.”</span>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+            <button onclick="openLetter(0)">You Miss Me</button>
+            <button onclick="openLetter(1)">You Feel Tired</button>
+            <button onclick="openLetter(2)">You Doubt Yourself</button>
+            <button onclick="openLetter(3)">You Are Happy</button>
+            <button onclick="openLetter(4)">You Can't Sleep</button>
+        </div>
+        <div id="letter-display" class="glass-card" style="display:none; text-align: left;"></div>
+        <button onclick="goTo('page8', 'slide-in')">The Future ⏳</button>
+    </div>
+
+    <div id="page8" class="page">
+        <h2>Message from 5 years later...</h2>
+        <span class="page-subtitle">“I see your effort.”</span>
+        <div class="glass-card" style="font-style:italic; text-align: left;">
+            "Five years from today, you have become the man you always worked so hard to be. I am so proud of the person you have become... and I still wish to be beside you."
+        </div>
+        <button onclick="goTo('page9', 'zoom-in')">The Big Moment 🎂</button>
+    </div>
+
+    <canvas id="fw"></canvas>
+    <div id="page9" class="page">
+        <h1 style="font-size: 3rem; margin-top:50px;">Happy Birthday Avi ❤️</h1>
+        <span class="page-subtitle" style="font-size: 1.2rem; background: var(--primary-red); color: white; padding: 5px 15px; border-radius: 20px; display: inline-block;">i love you Vaibhav</span>
+        <div style="font-size:80px; margin: 20px;">🎂</div>
+        <button onclick="startFinal()" style="margin-top: 30px;">ONE LAST MESSAGE 💌</button>
+    </div>
+
+    <canvas id="hearts-bg"></canvas>
+    <div id="page10" class="page">
+        <span class="page-subtitle">“I’m proud of you.”</span>
+        <div class="glass-card" id="luxe-msg" style="text-align: left; line-height: 2;"></div>
+    </div>
+
+    <script>
+        const audio = document.getElementById("song");
+
+        // --- HUG LOGIC ---
+        let hugTimer, hugProgress = 0;
+        const hugZone = document.getElementById('hugZone');
+        const hugCircle = document.getElementById('hug-circle-bar');
+
+        function startHug(e) {
+            e.preventDefault();
+            hugTimer = setInterval(() => {
+                if (hugProgress < 100) {
+                    hugProgress += 1.5;
+                    hugCircle.style.strokeDashoffset = 314 - (hugProgress / 100 * 314);
+                } else {
+                    clearInterval(hugTimer);
+                    document.getElementById('start-btn').style.display = 'inline-block';
+                }
+            }, 20);
+        }
+        function endHug() { clearInterval(hugTimer); if (hugProgress < 100) { hugProgress = 0; hugCircle.style.strokeDashoffset = 314; } }
+
+        hugZone.addEventListener('mousedown', startHug);
+        hugZone.addEventListener('touchstart', startHug);
+        window.addEventListener('mouseup', endHug);
+        window.addEventListener('touchend', endHug);
+
+        function startExperience() { audio.play(); goTo('page1', 'fade-up'); }
+
+        // --- MAP GAME ---
+        let currentDist = 148, carPos = 10;
+        function drive() {
+            if (currentDist > 0) {
+                currentDist -= 20; carPos += 10;
+                if (currentDist < 0) currentDist = 0;
+                document.getElementById('dist-text').innerHTML = `Distance: <b>${currentDist} km</b>`;
+                document.getElementById('car-icon').style.left = Math.min(carPos, 80) + '%';
+                if (currentDist === 0) {
+                    document.getElementById('dist-text').innerHTML = "<b>Distance: 0 km. I'm here! ❤️</b>";
+                    document.getElementById('drive-btn').style.display = 'none';
+                    document.getElementById('map-next').style.display = 'inline-block';
+                }
+            }
+        }
+
+        function goTo(id, anim) {
+            document.querySelectorAll('.page').forEach(p => { p.style.display = 'none'; p.className = 'page'; });
+            const next = document.getElementById(id);
+            next.style.display = 'block'; next.classList.add(anim);
+            if(id==='page9') initFW();
+            if(id==='page10') initHeartsBG();
+        }
+
+        function checkPassword() { if(document.getElementById('password').value.includes('25')) goTo('page3', 'slide-in'); else alert("Think about our special day..."); }
+
+        function quiz(c) {
+            const m = document.getElementById('quiz-msg');
+            if(c) { m.innerHTML="Correct. Your voice is my favorite peace. ❤️"; document.getElementById('song-note').style.display='block'; }
+            else { m.innerText="Try again, love!"; }
+        }
+
+        const reasons = ["Because the world needed your heart", "Because your kindness is rare", "Because your laugh heals", "Because you try even when it’s hard", "Because you are becoming someone great"];
+        let rIdx = 0;
+        function nextReason() {
+            if(rIdx < reasons.length) { document.getElementById('reason-text').innerText = reasons[rIdx]; rIdx++; }
+            else { goTo('page5', 'zoom-in'); }
+        }
+
+        // --- WHEEL LOGIC (FIXED TEXT & SMOOTHNESS) ---
+        const opts = ["Long Hug", "Secret Fact", "Random Selfie", "Voice Note", "Special Gift", "Love Letter"];
+        const colors = ["#ffffff", "#f9e6ec", "#f3c6d3", "#ffffff", "#f9e6ec", "#f3c6d3"];
+        const wg = document.getElementById("wheel-group");
+        
+        opts.forEach((t, i) => {
+            const angle = 360 / opts.length;
+            const startAngle = i * angle;
+            const endAngle = (i + 1) * angle;
+            
+            // Draw Slices
+            const x1 = 100 + 100 * Math.cos(Math.PI * startAngle / 180);
+            const y1 = 100 + 100 * Math.sin(Math.PI * startAngle / 180);
+            const x2 = 100 + 100 * Math.cos(Math.PI * endAngle / 180);
+            const y2 = 100 + 100 * Math.sin(Math.PI * endAngle / 180);
+            
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", `M 100 100 L ${x1} ${y1} A 100 100 0 0 1 ${x2} ${y2} Z`);
+            path.setAttribute("fill", colors[i]);
+            path.setAttribute("stroke", "white");
+            path.setAttribute("stroke-width", "1");
+            wg.appendChild(path);
+
+            // Draw Text (Rotated correctly to fit)
+            const textAngle = startAngle + angle / 2;
+            const textGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            textGroup.setAttribute("transform", `rotate(${textAngle}, 100, 100)`);
+            
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", "145"); // Positioned towards the outer edge
+            text.setAttribute("y", "103");
+            text.setAttribute("class", "slice-text");
+            text.setAttribute("text-anchor", "middle");
+            text.textContent = t;
+            
+            textGroup.appendChild(text);
+            wg.appendChild(textGroup);
+        });
+
+        let currentRotation = 0;
+        function spinWheel() {
+            const randomExtra = Math.floor(Math.random() * 360);
+            const totalSpin = 1800 + randomExtra; // 5 full laps + random
+            currentRotation += totalSpin;
+            
+            const wheel = document.getElementById("wheel-svg");
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+            
+            // Calculate result after transition
+            setTimeout(() => {
+                const actualDeg = currentRotation % 360;
+                // Offset calculation (pointer is at top = 270deg in SVG math)
+                const correctedDeg = (360 - actualDeg + 270) % 360;
+                const index = Math.floor(correctedDeg / (360 / opts.length));
+                
+                document.getElementById("wheel-res").innerHTML = `You are rewarded by this list: <br><span style="font-size:1.4rem; color:var(--primary-red)">✨ ${opts[index]} ✨</span>`;
+                document.getElementById("wheel-next").style.display = "inline-block";
+            }, 5000);
+        }
+
+        const letters = [
+            "Close your eyes and breathe. I'm right there in your heart. Distance is just a test to see how far love can travel, and we're winning.",
+            "You work so hard, Avi. Please take a moment to be kind to yourself today. I'm so proud of your dedication and strength.",
+            "If you could see yourself through my eyes, you'd never doubt again. You are capable of moving mountains, and I believe in you always.",
+            "Seeing you happy is my favorite thing. Keep that beautiful smile shining—it makes my entire world a lot brighter.",
+            "Listen to the rhythm of your heart; it's beating in sync with mine. Rest well, my love. I'll be seeing you in our dreams tonight."
+        ];
+        function openLetter(i) {
+            const d = document.getElementById('letter-display');
+            d.style.display = 'block'; d.innerText = letters[i];
+        }
+
+        function gift(title, text) { const g = document.getElementById('gift-msg'); g.style.display='block'; g.innerHTML = `<b>${title}</b><br>${text}`; }
+
+        function startFinal() {
+            goTo('page10', 'fade-up');
+            const txt = "Avi, you are an amazing person. I find myself lucky to have met you and I intend to spend the best time of my life with you. Even if it has no tag, I just want to be with you and that’s all that matters. I truly wish you the world‘s happiness because you deserve it. I wish every dream of yours comes true. Have a great birthday, my love. ❤️";
+            let i=0; function type() { if(i<txt.length) { document.getElementById('luxe-msg').innerHTML += txt.charAt(i); i++; setTimeout(type, 50); } } type();
+        }
+
+        // FW & Hearts Canvas Logic
+        function initFW() {
+            const c = document.getElementById('fw'); const x = c.getContext('2d');
+            c.width = innerWidth; c.height = innerHeight;
+            let p = [];
+            function draw() {
+                x.clearRect(0,0,c.width,c.height);
+                if(p.length < 30) p.push({x:Math.random()*c.width, y:c.height, vy:Math.random()*-12-5, vx:Math.random()*2-1, c:Math.random() > 0.5 ? "#a10f2b" : "#ffffff"});
+                p.forEach((i,j) => { i.y+=i.vy; i.x+=i.vx; i.vy+=0.15; x.fillStyle=i.c; x.beginPath(); x.arc(i.x,i.y,3,0,Math.PI*2); x.fill(); if(i.y>c.height) p.splice(j,1); });
+                requestAnimationFrame(draw);
+            } draw();
+        }
+
+        function initHeartsBG() {
+            const c = document.getElementById('hearts-bg'); const x = c.getContext('2d');
+            c.width = innerWidth; c.height = innerHeight;
+            let h = []; for(let i=0; i<30; i++) h.push({x:Math.random()*c.width, y:Math.random()*c.height, s:Math.random()*15+10, o:Math.random()});
+            function draw() {
+                x.clearRect(0,0,c.width,c.height); 
+                h.forEach(i => { x.globalAlpha = i.o; x.font = `${i.s}px serif`; x.fillText("❤️", i.x, i.y); i.y-=0.5; if(i.y<0) i.y=c.height; });
+                requestAnimationFrame(draw);
+            } draw();
+        }
+    </script>
+</body>
+</html>
+ 
